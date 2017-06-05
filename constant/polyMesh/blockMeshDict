@@ -1,0 +1,129 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.1.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+//1. Make sure the distances between coordinate variables (i.e. zMin, yA, etc.) are divisible by the cell size
+//2. It is important to build the blocks and model (i.e. geometry imports) around the desired upstream and downstream water surface levels
+//   otherwise, you might have to choose too fine of cellsize which may or may not be a problem
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+convertToMeters 1;
+
+xMin   0.0; 
+xMax  16.002;
+
+yA  0.0; 
+yB  0.635; 
+
+zMin     0.0;  
+zMax     0.635;
+
+cellsize 0.03175;
+
+nbDirX       #calc "floor((($xMax)-($xMin))/$cellsize)";
+nbDirY       #calc "floor((($yB)-($yA))/$cellsize)";
+nbDirZ       #calc "floor((($zMax)-($zMin))/$cellsize)";
+
+vertices
+(
+ ($xMin  $yA   $zMin    ) // 0
+ ($xMin  $yA   $zMax    ) // 1
+
+ ($xMax  $yA   $zMin    ) // 2
+ ($xMax  $yA   $zMax    ) // 3
+
+ ($xMin  $yB   $zMin    ) // 4
+ ($xMin  $yB   $zMax    ) // 5
+
+ ($xMax  $yB   $zMin    ) // 6
+ ($xMax  $yB   $zMax    ) // 7
+
+);
+
+blocks
+(
+ hex ( 0  2  6  4  1  3  7  5) ($nbDirX $nbDirY $nbDirZ)   simpleGrading (1 1 1) //block1 
+
+);
+
+edges
+(
+);
+
+boundary
+(
+    xmin
+    {
+        type patch;
+        faces
+        (
+            (1 0 4 5)
+        );
+    }
+    
+    xmax
+    {
+        type patch;
+        faces
+        (
+            (2 3 7 6)
+        );
+    }
+    
+    haut
+    {
+        type patch;
+        faces
+        (
+            (1 5 7 3)
+        );
+    }
+    
+    wall_fond
+    {
+        type wall;
+        faces
+        (
+            (0 4 6 2)
+        );
+    }
+    
+    wall_ymax
+    {
+      type wall;
+        faces
+        (
+            (4 5 7 6)
+        );
+    }
+    
+    wall_ymin
+    {
+      type wall;
+        faces
+        (
+            (0 1 3 2)
+        );
+    }
+
+);
+    
+
+mergePatchPairs
+(
+);
