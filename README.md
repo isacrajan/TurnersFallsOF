@@ -1,2 +1,2 @@
 # TurnersFallsOF
-Open channel flume simulation with one baffle.
+OpenFOAM case setup for an open channel flume simulation with one baffle.
